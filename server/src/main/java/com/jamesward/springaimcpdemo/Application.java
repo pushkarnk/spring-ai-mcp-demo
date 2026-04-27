@@ -220,3 +220,66 @@ class ShoppingListApp {
         }
     }
 }
+
+@Component
+class UbuntuCodeNameApp {
+
+    private static final Map<String, String> CODE_NAMES = Map.ofEntries(
+        Map.entry("4.10",  "Warty Warthog"),
+        Map.entry("5.04",  "Hoary Hedgehog"),
+        Map.entry("5.10",  "Breezy Badger"),
+        Map.entry("6.06",  "Dapper Drake"),
+        Map.entry("6.10",  "Edgy Eft"),
+        Map.entry("7.04",  "Feisty Fawn"),
+        Map.entry("7.10",  "Gutsy Gibbon"),
+        Map.entry("8.04",  "Hardy Heron"),
+        Map.entry("8.10",  "Intrepid Ibex"),
+        Map.entry("9.04",  "Jaunty Jackalope"),
+        Map.entry("9.10",  "Karmic Koala"),
+        Map.entry("10.04", "Lucid Lynx"),
+        Map.entry("10.10", "Maverick Meerkat"),
+        Map.entry("11.04", "Natty Narwhal"),
+        Map.entry("11.10", "Oneiric Ocelot"),
+        Map.entry("12.04", "Precise Pangolin"),
+        Map.entry("12.10", "Quantal Quetzal"),
+        Map.entry("13.04", "Raring Ringtail"),
+        Map.entry("13.10", "Saucy Salamander"),
+        Map.entry("14.04", "Trusty Tahr"),
+        Map.entry("14.10", "Utopic Unicorn"),
+        Map.entry("15.04", "Vivid Vervet"),
+        Map.entry("15.10", "Wily Werewolf"),
+        Map.entry("16.04", "Xenial Xerus"),
+        Map.entry("16.10", "Yakkety Yak"),
+        Map.entry("17.04", "Zesty Zapus"),
+        Map.entry("17.10", "Artful Aardvark"),
+        Map.entry("18.04", "Bionic Beaver"),
+        Map.entry("18.10", "Cosmic Cuttlefish"),
+        Map.entry("19.04", "Disco Dingo"),
+        Map.entry("19.10", "Eoan Ermine"),
+        Map.entry("20.04", "Focal Fossa"),
+        Map.entry("20.10", "Groovy Gorilla"),
+        Map.entry("21.04", "Hirsute Hippo"),
+        Map.entry("21.10", "Impish Indri"),
+        Map.entry("22.04", "Jammy Jellyfish"),
+        Map.entry("22.10", "Kinetic Kudu"),
+        Map.entry("23.04", "Lunar Lobster"),
+        Map.entry("23.10", "Mantic Minotaur"),
+        Map.entry("24.04", "Noble Numbat"),
+        Map.entry("24.10", "Oracular Oriole"),
+        Map.entry("25.04", "Plucky Puffin"),
+        Map.entry("25.10", "Questing Quokka"),
+        Map.entry("26.04", "Resolute Raccoon")
+    );
+
+    @McpTool(
+        name = "ubuntu-code-name",
+        description = "Returns the Ubuntu release code name for a given version number, e.g. 24.04 -> Noble Numbat"
+    )
+    public String ubuntuCodeName(
+        @McpToolParam(description = "Ubuntu version in MM.YY form, e.g. 24.04", required = true) String version
+    ) {
+        String key = version == null ? "" : version.trim();
+        String name = CODE_NAMES.get(key);
+        return name != null ? name : "Unknown Ubuntu version: " + version;
+    }
+}
