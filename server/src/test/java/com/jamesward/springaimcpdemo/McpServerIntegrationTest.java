@@ -68,7 +68,7 @@ class McpServerIntegrationTest {
 
         assertThat(toolNames).containsExactlyInAnyOrder(
                 "add", "multiply", "sub", "divide", "random", "loudJoke",
-                "roll-the-dice", "shopping-list");
+                "roll-the-dice", "shopping-list", "show-ubuntu-mascot");
     }
 
     @Test
@@ -254,6 +254,42 @@ class McpServerIntegrationTest {
                 (McpSchema.TextResourceContents) result.contents().getFirst();
         assertThat(contents.mimeType()).isEqualTo("text/html;profile=mcp-app");
         assertThat(contents.text()).contains("Shopping List");
+        assertThat(contents.text()).contains("ext-apps");
+    }
+
+    // --- Ubuntu Mascot MCP App ---
+
+    @Test
+    void showUbuntuMascotTool_hasUiMetadata() {
+        McpSchema.Tool tool = client.listTools().tools().stream()
+                .filter(t -> "show-ubuntu-mascot".equals(t.name())).findFirst().orElseThrow();
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> ui = (Map<String, Object>) tool.meta().get("ui");
+        assertThat(ui).containsEntry("resourceUri", "ui://mascot/show-ubuntu-mascot.html");
+    }
+
+    @Test
+    void showUbuntuMascotTool_returnsNameForKnownVersion() {
+        McpSchema.CallToolResult result = client.callTool(
+                new McpSchema.CallToolRequest("show-ubuntu-mascot", Map.of("version", "24.04")));
+
+        assertThat(result.isError()).isFalse();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> structured = (Map<String, Object>) result.structuredContent();
+        assertThat(structured).containsEntry("version", "24.04");
+        assertThat(structured).containsEntry("name", "Noble Numbat");
+    }
+
+    @Test
+    void showUbuntuMascotResource_servesHtmlWithMcpAppProfile() {
+        McpSchema.ReadResourceResult result = client.readResource(
+                new McpSchema.ReadResourceRequest("ui://mascot/show-ubuntu-mascot.html"));
+
+        McpSchema.TextResourceContents contents =
+                (McpSchema.TextResourceContents) result.contents().getFirst();
+        assertThat(contents.mimeType()).isEqualTo("text/html;profile=mcp-app");
+        assertThat(contents.text()).contains("Ubuntu Mascot");
         assertThat(contents.text()).contains("ext-apps");
     }
 }

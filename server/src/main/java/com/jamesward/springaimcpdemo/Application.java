@@ -222,7 +222,7 @@ class ShoppingListApp {
 }
 
 @Component
-class UbuntuCodeNameApp {
+class ShowUbuntuMascotApp {
 
     private static final Map<String, String> CODE_NAMES = Map.ofEntries(
         Map.entry("4.10",  "Warty Warthog"),
@@ -271,15 +271,46 @@ class UbuntuCodeNameApp {
         Map.entry("26.04", "Resolute Raccoon")
     );
 
+    StaticTemplates staticTemplates = new StaticTemplates();
+    String appExtJs;
+
+    public ShowUbuntuMascotApp() throws IOException {
+        WebJarVersionLocator webJarVersionLocator = new WebJarVersionLocator();
+        Resource appExt = new ClassPathResource(Objects.requireNonNull(webJarVersionLocator.fullPath("modelcontextprotocol__ext-apps", "dist/src/app-with-deps.js")));
+        appExtJs = appExt.getContentAsString(Charset.defaultCharset());
+    }
+
+    @McpResource(name = "Ubuntu Mascot Viewer",
+            uri = "ui://mascot/show-ubuntu-mascot.html",
+            mimeType = "text/html;profile=mcp-app")
+    public String getMascotResource() {
+        return staticTemplates.showUbuntuMascot(appExtJs).render();
+    }
+
+    public record MascotResult(String version, String name, String svg) { }
+
     @McpTool(
-        name = "ubuntu-code-name",
-        description = "Returns the Ubuntu release code name for a given version number, e.g. 24.04 -> Noble Numbat"
-    )
-    public String ubuntuCodeName(
-        @McpToolParam(description = "Ubuntu version in MM.YY form, e.g. 24.04", required = true) String version
-    ) {
+            title = "Show Ubuntu Mascot",
+            name = "show-ubuntu-mascot",
+            description = "Shows the Ubuntu mascot SVG for a given release and prints its code name, e.g. 24.04 -> Noble Numbat",
+            generateOutputSchema = true,
+            metaProvider = ShowUbuntuMascotMetaProvider.class)
+    public MascotResult showUbuntuMascot(
+            @McpToolParam(description = "Ubuntu version in MM.YY form, e.g. 24.04", required = true) String version
+    ) throws IOException {
         String key = version == null ? "" : version.trim();
-        String name = CODE_NAMES.get(key);
-        return name != null ? name : "Unknown Ubuntu version: " + version;
+        String name = CODE_NAMES.getOrDefault(key, "Unknown Ubuntu version");
+        Resource svgResource = new ClassPathResource("mascots/" + key + ".svg");
+        String svg = svgResource.exists()
+                ? svgResource.getContentAsString(Charset.defaultCharset())
+                : "";
+        return new MascotResult(key, name, svg);
+    }
+
+    public static final class ShowUbuntuMascotMetaProvider implements MetaProvider {
+        @Override
+        public Map<String, Object> getMeta() {
+            return Map.of("ui", Map.of("resourceUri", "ui://mascot/show-ubuntu-mascot.html"));
+        }
     }
 }
